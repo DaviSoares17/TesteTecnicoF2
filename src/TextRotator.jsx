@@ -13,7 +13,7 @@ const TextRotator = () => {
     useEffect(() => {
         const handleKeyPress = (e) => {
         if (e.key === ' ') {
-            
+
             startRotating();
         }
         if (e.key === 'l') {
@@ -30,33 +30,38 @@ const TextRotator = () => {
     }, []);
 
     const clearName = () => {
-        extractedNames = extractedNames.filter(item => item !== winner);
+        extractedNames = extractedNames.filter(item => item !== winner);       
         setCurrentText("");
     }
 
+    let delay = 20;
+    let elapsedTime = 0;
+    const duration = 7000; // Tempo total de execução
+    
     const randomizer = () => {
-        if (isRunning) return;
-
-            setIsRunning(true);
-
-
-            const interval = setInterval(() => {
-            const randomIndex = Math.floor(Math.random() * extractedNames.length);
-            setCurrentText(extractedNames[randomIndex]);
-            }, 100);
-
-
-            const timeout = setTimeout(() => {
-            clearInterval(interval);
+        
+        if (elapsedTime >= duration) {
+            // Parar e definir o vencedor final
             setIsRunning(false);
             const finalText = extractedNames[Math.floor(Math.random() * extractedNames.length)];
             setCurrentText(finalText);
             winner = finalText;
-            }, 5000);
-
-            setIntervalId(interval); 
+            delay = 20; 
+            elapsedTime = 0;
+            return;
+        }
+    
+        // Atualiza o texto com um nome aleatório
+        setCurrentText(extractedNames[Math.floor(Math.random() * extractedNames.length)]);
+    
+        // Ajusta o delay para criar o efeito de desaceleração
+        delay *= 1.016; // Aumenta o tempo entre atualizações
+        elapsedTime += delay;
+    
+        // Chama a função novamente após o novo delay
+        setTimeout(randomizer, delay);
     }
-
+    
     const startRotating = () => {
         if(extractedNames === undefined){
             fetch("/nomes.xlsx")
